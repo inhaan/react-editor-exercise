@@ -1,24 +1,60 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import { Post, Router } from "./interfaces";
+import PostList from "./PostList";
+import PostView from "./PostView";
+import PostWrite from "./PostWrite";
 
 function App() {
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  const [routePath, setRoutePath] = useState("/");
+  const [routeData, setRouteData] = useState<any>(null);
+
+  const router: Router = {
+    go(href: string, data: any) {
+      setRoutePath(href.toLocaleLowerCase());
+      setRouteData(data);
+    },
+  };
+
+  const onSavePost = (item: Post, data?: any) => {
+    setPosts([...posts, item]);
+    setRouteData(data);
+  };
+
+  const onClickMenu = (href: string) => {
+    setRoutePath(href);
+  };
+
+  let menu = (
+    <div>
+      <PostList router={router} posts={posts}></PostList>
+    </div>
+  );
+
+  if (routePath === "/postwrite") {
+    menu = (
+      <div>
+        <PostWrite router={router} onSavePost={onSavePost}></PostWrite>
+      </div>
+    );
+  }
+  if (routePath === "/postview") {
+    menu = (
+      <div>
+        <PostView post={routeData}></PostView>
+      </div>
+    );
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
+    <div>
+      <nav>
+        <a href="#" onClick={() => onClickMenu("/")}>
+          Home
         </a>
-      </header>
+      </nav>
+      {menu}
     </div>
   );
 }
